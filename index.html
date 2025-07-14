@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Interview Flashcards</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #eef2f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+  }
+  h1 {
+    color: #2c5282;
+  }
+  .flashcard {
+    background: white;
+    width: 300px;
+    height: 200px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    user-select: none;
+    perspective: 1000px;
+    margin: 1rem 0;
+  }
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+  }
+  .flashcard.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+  .card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+    backface-visibility: hidden;
+    border-radius: 12px;
+  }
+  .card-front {
+    background: #2c5282;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-back {
+    background: #f7fafc;
+    color: #2c5282;
+    transform: rotateY(180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .buttons {
+    display: flex;
+    gap: 1rem;
+  }
+  button {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #2c5282;
+    color: white;
+    cursor: pointer;
+  }
+  button:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+  }
+</style>
+</head>
+<body>
+
+<h1>Interview Flashcards</h1>
+
+<div class="flashcard" id="flashcard">
+  <div class="card-inner">
+    <div class="card-front" id="card-front">Loading...</div>
+    <div class="card-back" id="card-back"></div>
+  </div>
+</div>
+
+<div class="buttons">
+  <button id="prevBtn" disabled>Previous</button>
+  <button id="flipBtn">Flip</button>
+  <button id="nextBtn">Next</button>
+</div>
+
+<script>
+  const flashcards = [
+  { question: "What is HTML?", answer: "HTML (HyperText Markup Language) is the standard markup language used to create web pages." },
+  { question: "What is CSS?", answer: "CSS (Cascading Style Sheets) is used to style and layout web pages." },
+  { question: "What is JavaScript?", answer: "JavaScript is a scripting language used to create dynamic content on websites." },
+  { question: "What is the DOM?", answer: "DOM (Document Object Model) represents the structure of a web page as objects that can be manipulated with JavaScript." },
+  { question: "What is the difference between class and id in CSS?", answer: "'class' can be used multiple times on a page; 'id' should be unique." },
+  { question: "What are semantic HTML elements?", answer: "Elements that clearly describe their meaning, like <header>, <footer>, <article>, and <section>." },
+  { question: "What is the box model in CSS?", answer: "It describes the design and layout of elements: content, padding, border, and margin." },
+  { question: "How do you include a CSS file in HTML?", answer: "Using the <link> tag inside the <head>: <link rel=\"stylesheet\" href=\"style.css\">." },
+  { question: "What is the difference between let, const, and var in JavaScript?", answer: "'var' is function scoped, 'let' and 'const' are block scoped; 'const' can't be reassigned." },
+  { question: "What are arrow functions?", answer: "Shorter syntax for functions using =>, and they don’t have their own 'this'." },
+  { question: "What is event bubbling?", answer: "When an event triggers on an element and then propagates up to its parents." },
+  { question: "Explain RESTful APIs.", answer: "APIs following REST principles use HTTP methods to access and manipulate resources." },
+  { question: "What is JSON?", answer: "JavaScript Object Notation, a format for structuring data, widely used in web APIs." },
+  { question: "What is the difference between == and === in JavaScript?", answer: "== compares values with type coercion, === compares value and type." },
+  { question: "What is closure in JavaScript?", answer: "A function that has access to variables from its outer scope, even after the outer function has returned." },
+  { question: "What are promises?", answer: "Objects representing eventual completion or failure of asynchronous operations." },
+  { question: "What is async/await?", answer: "Syntax to work with promises in a more readable way, making async code look synchronous." },
+  { question: "What is the purpose of the 'this' keyword?", answer: "'this' refers to the object that is executing the current function." },
+  { question: "What is a callback function?", answer: "A function passed as an argument to another function, to be executed later." },
+  { question: "What are HTTP methods?", answer: "GET, POST, PUT, DELETE, PATCH, used to perform CRUD operations in web services." },
+  { question: "What is the difference between block and inline elements?", answer: "Block elements take up full width, inline elements only as much as needed." },
+  { question: "What is responsive design?", answer: "Design approach to make web pages look good on all devices." },
+  { question: "What is Flexbox?", answer: "CSS layout module for arranging items in one dimension (row or column)." },
+  { question: "What is the difference between relative, absolute, fixed, and sticky positioning?", answer: "They control how elements are positioned in the document flow differently." },
+  { question: "What is a CSS selector?", answer: "A pattern used to select elements to apply styles to." },
+  { question: "What is the difference between padding and margin?", answer: "Padding is space inside an element's border; margin is outside the border." },
+  { question: "What is a media query?", answer: "CSS technique for applying styles based on device characteristics like width." },
+  { question: "Explain the concept of a Single Page Application (SPA).", answer: "A web app that loads a single HTML page and dynamically updates content without refreshing." },
+  { question: "What is the difference between localStorage and sessionStorage?", answer: "localStorage persists data indefinitely; sessionStorage clears when the tab is closed." },
+  { question: "What is the difference between synchronous and asynchronous code?", answer: "Synchronous blocks code until done; asynchronous runs in the background without blocking." },
+  { question: "What is event delegation?", answer: "Attaching a single event listener to a parent that manages events for its children." },
+  { question: "What is a JavaScript framework?", answer: "A library that provides structure and tools to build web applications, like React or Angular." },
+  { question: "What is JSX?", answer: "A syntax extension for JavaScript used with React to describe UI components." },
+  { question: "What is the virtual DOM?", answer: "A lightweight copy of the actual DOM used by React for efficient updates." },
+  { question: "What is REST?", answer: "Representational State Transfer, an architectural style for designing networked applications." },
+  { question: "What is CORS?", answer: "Cross-Origin Resource Sharing, a security feature that restricts web pages from making requests to a different domain." },
+  { question: "What is a CSS preprocessor?", answer: "A tool like Sass or LESS that extends CSS with variables, nesting, and functions." },
+  { question: "What are pseudo-classes in CSS?", answer: "Selectors like :hover or :focus that apply styles based on element states." },
+  { question: "Explain the box-sizing property.", answer: "'content-box' vs 'border-box' affects how width and height are calculated including padding and border." },
+  { question: "What is hoisting in JavaScript?", answer: "Variable and function declarations are moved to the top of their scope before execution." },
+  { question: "What is the difference between null and undefined?", answer: "undefined means a variable hasn’t been assigned, null is an explicit empty value." },
+  { question: "What is debouncing?", answer: "A technique to limit how often a function runs, useful for events like resizing or typing." },
+  { question: "What is throttling?", answer: "Controlling how often a function can be called over time." },
+  { question: "What are web components?", answer: "Reusable custom elements with encapsulated functionality and styling." },
+  { question: "What is progressive enhancement?", answer: "Building websites so that basic functionality works on all browsers, with advanced features for modern ones." },
+  { question: "What is accessibility (a11y)?", answer: "Designing websites usable by people with disabilities." },
+  { question: "What is SEO?", answer: "Search Engine Optimization, techniques to improve website ranking in search engines." },
+  { question: "Explain how forms work in HTML.", answer: "Forms collect user input and send data to servers using methods like GET or POST." },
+  { question: "What is a cookie?", answer: "Small data stored in the user's browser for session management or tracking." },
+  { question: "What is the difference between front-end and back-end?", answer: "Front-end is what users see and interact with; back-end handles data, logic, and server tasks." },
+  { question: "What is an API?", answer: "Application Programming Interface, a set of rules for communication between software." },
+  { question: "What is the event loop in JavaScript?", answer: "It handles asynchronous callbacks by managing the call stack and message queue." },
+  { question: "What is the difference between mutable and immutable objects?", answer: "Mutable objects can be changed after creation; immutable cannot." },
+  { question: "What is the purpose of HTTP status codes?", answer: "Indicate the result of a HTTP request (e.g., 200 OK, 404 Not Found)."},
+  { question: "What is RESTful routing?", answer: "A way to organize URLs around resources with standard HTTP methods." },
+  { question: "What is CORS error and how to fix it?", answer: "A browser security issue when a web app requests a resource from another domain; fix by server headers or proxy." },
+  { question: "What is a SPA router?", answer: "Manages navigation in a single page application without full page reloads." },
+  { question: "What is lazy loading?", answer: "Deferring loading of non-critical resources until needed." },
+  { question: "What is cross-site scripting (XSS)?", answer: "Security vulnerability where attackers inject malicious scripts into trusted websites." },
+  { question: "What is the difference between cookies, localStorage, and sessionStorage?", answer: "Cookies are sent with HTTP requests; localStorage and sessionStorage are client-side only." },
+  { question: "What is a service worker?", answer: "A script that runs in the background to enable offline capabilities and caching." },
+  { question: "What is the difference between REST and GraphQL?", answer: "REST uses multiple endpoints; GraphQL uses a single endpoint with flexible queries." },
+  { question: "What is the use of the 'alt' attribute in images?", answer: "Provides alternative text for images, important for accessibility." },
+  { question: "What is responsive typography?", answer: "Adjusting font size and line height based on screen size for readability." },
+  { question: "What is a CSS grid?", answer: "A layout system for creating 2-dimensional grid-based designs." },
+  { question: "What are media types in HTTP?", answer: "MIME types that tell the browser what type of data is being sent." },
+  { question: "What is the difference between padding and margin collapsing?", answer: "Margins between elements can combine or collapse; padding does not." },
+  { question: "What is event.preventDefault()?", answer: "Stops the default action of an event, like form submission." },
+  { question: "What are pure functions?", answer: "Functions that return the same output for the same input and have no side effects." },
+  { question: "What is functional programming?", answer: "Programming paradigm using functions as first-class citizens and avoiding shared state." },
+  { question: "What is a web socket?", answer: "A protocol for two-way interactive communication between client and server." }
+];
+
+
+  let currentIndex = 0;
+  let flipped = false;
+
+  const flashcardEl = document.getElementById('flashcard');
+  const frontEl = document.getElementById('card-front');
+  const backEl = document.getElementById('card-back');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const flipBtn = document.getElementById('flipBtn');
+
+  function updateCard() {
+    flipped = false;
+    flashcardEl.classList.remove('flipped');
+    frontEl.textContent = flashcards[currentIndex].question;
+    backEl.textContent = flashcards[currentIndex].answer;
+    prevBtn.disabled = currentIndex === 0;
+    nextBtn.disabled = currentIndex === flashcards.length -1;
+  }
+
+  flipBtn.addEventListener('click', () => {
+    flipped = !flipped;
+    if(flipped) {
+      flashcardEl.classList.add('flipped');
+    } else {
+      flashcardEl.classList.remove('flipped');
+    }
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if(currentIndex > 0) {
+      currentIndex--;
+      updateCard();
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if(currentIndex < flashcards.length - 1) {
+      currentIndex++;
+      updateCard();
+    }
+  });
+
+  flashcardEl.addEventListener('click', () => {
+    flipped = !flipped;
+    flashcardEl.classList.toggle('flipped', flipped);
+  });
+
+  updateCard();
+</script>
+
+</body>
+</html>
